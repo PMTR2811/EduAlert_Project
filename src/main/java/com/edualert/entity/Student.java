@@ -111,4 +111,36 @@ public class Student {
 	public void setCohort(String cohort) {
 		this.cohort = cohort;
 	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public AdmissionProfile getAdmissionProfile() {
+		return admissionProfile;
+	}
+
+	public void setAdmissionProfile(AdmissionProfile admissionProfile) {
+		this.admissionProfile = admissionProfile;
+	}
+
+	public List<AcademicProgress> getAcademicProgresses() {
+		return academicProgresses;
+	}
+
+	public void setAcademicProgresses(List<AcademicProgress> academicProgresses) {
+		this.academicProgresses = academicProgresses;
+	}
+
+	public List<RiskEvaluation> getRiskEvaluations() {
+		return riskEvaluations;
+	}
+
+	public void setRiskEvaluations(List<RiskEvaluation> riskEvaluations) {
+		this.riskEvaluations = riskEvaluations;
+	}
 }
