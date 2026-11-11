@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ai")
-@CrossOrigin(origins = "*") // Cho phép frontend (UI của Thắng) gọi API thoải mái không bị lỗi CORS
+@CrossOrigin(origins = "*") // Cho phép frontend gọi API thoải mái không bị lỗi CORS
 public class RiskAssessmentController {
 
     @Autowired
@@ -22,10 +22,7 @@ public class RiskAssessmentController {
      */
     @PostMapping("/evaluate")
     public ResponseEntity<RiskAssessmentResponseDTO> evaluateRisk(@RequestBody RiskAssessmentRequestDTO request) {
-        // Gọi service xử lý thuật toán Sigmoid và trọng số từ weights.json
         RiskAssessmentResponseDTO response = riskAssessmentService.evaluateStudentRisk(request);
-
-        // Trả về HTTP Status 200 OK kèm theo cục JSON kết quả
         return ResponseEntity.ok(response);
     }
 }
