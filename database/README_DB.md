@@ -30,3 +30,22 @@
 
 Mật khẩu sa: EduAlert@2026
 
+
+\## Chạy toàn bộ hệ thống bằng Docker (App + SQL Server)
+
+
+
+&#x20;  docker compose up --build
+
+
+
+Sau đó mở http://localhost:8080 . Nạp 80 sinh viên mẫu:
+
+&#x20;  curl -X POST http://localhost:8080/api/demo/load-synthetic-data
+
+
+
+Tắt: Ctrl + C, rồi `docker compose down`.
+
+Lưu ý: tắt app chạy bằng Maven (mvnw) trước, vì trùng cổng 8080 và 1433.
+
