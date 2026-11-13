@@ -3,8 +3,8 @@ package com.edualert.edualert_app.service.impl;
 import com.edualert.edualert_app.dto.RiskAssessmentRequestDTO;
 import com.edualert.edualert_app.dto.RiskAssessmentResponseDTO;
 import com.edualert.edualert_app.service.RiskAssessmentService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
