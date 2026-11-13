@@ -1,0 +1,9 @@
+{
+  "intercept": -2.5,
+  "weights": {
+    "admissionScore": -0.15,
+    "gpaTrend": -0.80,
+    "accumulatedDebtCredits": 0.25,
+    "highRiskCredits": 0.35
+  }
+}
