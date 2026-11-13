@@ -1,11 +1,29 @@
+server:
+  port: 8080
+
 spring:
+  application:
+    name: edualert-app
+
+  # Cấu hình kết nối SQL Server
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
+    url: jdbc:sqlserver://localhost;instanceName=SQLEXPRESS;databaseName=edualert;encrypt=true;trustServerCertificate=true
     username: sa
-    password:
+    password: '123456'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # JPA & Hibernate Setting
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    # Cho phép chạy file data.sql SAU KHI Hibernate đã tạo xong các bảng
+    defer-datasource-initialization: true
+
+  # Chạy script khởi tạo dữ liệu
+  sql:
+    init:
+      mode: always
