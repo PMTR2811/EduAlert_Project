@@ -2,119 +2,232 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chi Tiết Sinh Viên - EduAlert</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f1f4f9; }
+        .page-title { font-weight: 700; color: #1f2d4d; }
+        .card { border: 0; border-radius: 14px; box-shadow: 0 2px 10px rgba(31, 45, 77, .08); }
+        .card-header { border-radius: 14px 14px 0 0 !important; font-weight: 600; }
+        .avatar { width: 72px; height: 72px; border-radius: 50%; background: #0d6efd; color: #fff;
+                  display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 10px; }
+        .info-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed #e3e8ef; }
+        .info-row:last-child { border-bottom: 0; }
+        .info-row span:first-child { color: #6b778c; }
+        .risk-number { font-size: 48px; font-weight: 700; line-height: 1; }
+        .progress { height: 18px; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-light py-4">
+<body class="py-4">
+<div class="container"
+     id="detailRoot"
+     th:attr="data-student=${student.studentCode}, data-admission=${admissionProfile != null and admissionProfile.standardizedScore != null ? admissionProfile.standardizedScore : 0}">
 
-    <div class="container">
-        <!-- Thanh điều hướng phía trên -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fa-solid fa-file-lines me-2 text-primary"></i>Hồ Sơ Chi Tiết Sinh Viên</h2>
-            <div>
-                <!-- Nút kích hoạt tính toán lại cảnh báo học tập theo Thông tư 08 -->
-                <form th:action="@{/students/evaluate/{code}(code=${student.studentCode})}" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-warning me-2">
-                        <i class="fa-solid fa-calculator me-1"></i> Đánh Giá Lại Cảnh Báo (TT08)
-                    </button>
-                </form>
-                <a th:href="@{/students}" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách
-                </a>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Thông tin cá nhân cơ bản -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fa-solid fa-user me-2"></i>Thông Tin Chung</h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>MSSV:</strong> <span th:text="${student.studentCode}" class="text-primary fw-bold"></span></p>
-                        <p><strong>Họ và tên:</strong> <span th:text="${student.fullName}"></span></p>
-                        <p><strong>Ngày sinh:</strong> <span th:text="${student.dob}"></span></p>
-                        <p><strong>Giới tính:</strong> <span th:text="${student.gender}"></span></p>
-                        <p><strong>Ngành học:</strong> <span th:text="${student.major}"></span></p>
-                        <p><strong>Khóa:</strong> <span th:text="${student.cohort}"></span></p>
-                        <p><strong>Trạng thái học tập:</strong> 
-                            <span class="badge bg-danger" th:text="${student.status}"></span>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Hồ sơ đầu vào -->
-                <div class="card shadow-sm border-0 mt-4" th:if="${admissionProfile != null}">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0"><i class="fa-solid fa-id-card-clip me-2"></i>Hồ Sơ Đầu Vào</h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Điểm xét tuyển:</strong> <span th:text="${admissionProfile.standardizedScore}"></span></p>
-                        <p><strong>Khu vực ưu tiên:</strong> <span th:text="${admissionProfile.highSchoolType}"></span></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tiến trình học tập & Đánh giá rủi ro từ AI -->
-            <div class="col-md-8">
-                <!-- Tiến trình học tập -->
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="fa-solid fa-chart-line me-2"></i>Tiến Trình Học Tập Theo Học Kỳ</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-bordered table-striped align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Học kỳ</th>
-                                    <th>Điểm TB (GPA)</th>
-                                    <th>Số tín tích lũy</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="p : ${progressList}">
-                                    <td th:text="${p.semester}"></td>
-                                    <td th:text="${p.termGpa}"></td>
-                                    <td th:text="${p.creditsPassed}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(progressList)}">
-                                    <td colspan="3" class="text-center text-muted">Chưa có dữ liệu tiến trình học tập.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Kết quả suy luận đánh giá rủi ro từ Module AI -->
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="fa-solid fa-robot me-2"></i>Phiếu Đánh Giá Rủi Ro & Đề Xuất Tư Vấn (AI)</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush" th:if="${not #lists.isEmpty(riskEvaluations)}">
-                            <li class="list-group-item" th:each="risk : ${riskEvaluations}">
-                                <div class="d-flex justify-content-between">
-                                    <strong th:text="'Đánh giá kỳ: ' + ${risk.evaluationTime}"></strong>
-                                    <span class="badge bg-warning text-dark" th:text="${risk.riskProbability}"></span>
-                                </div>
-                                <p class="mb-1 mt-2 text-muted" th:text="${risk.primaryRiskFactor}"></p>
-                            </li>
-                        </ul>
-                        <div th:if="${#lists.isEmpty(riskEvaluations)}" class="text-center text-muted py-3">
-                            Chưa có dữ liệu đánh giá rủi ro từ hệ thống AI.
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+    <!-- Thanh trên -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <h3 class="page-title mb-0"><i class="fa-solid fa-user-graduate me-2 text-primary"></i>Hồ Sơ Chi Tiết Sinh Viên</h3>
+        <div>
+            <form th:action="@{/students/evaluate/{code}(code=${student.studentCode})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-warning me-2">
+                    <i class="fa-solid fa-calculator me-1"></i> Đánh Giá Lại Cảnh Báo (TT08)
+                </button>
+            </form>
+            <a th:href="@{/students}" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách
+            </a>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="row">
+        <!-- Cột trái -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <h5 class="text-center mb-0" th:text="${student.fullName}"></h5>
+                    <p class="text-center text-primary fw-bold mb-2" th:text="${student.studentCode}"></p>
+                    <div class="text-center mb-3" th:switch="${student.status}">
+                        <span th:case="'Normal'" class="badge rounded-pill bg-success fs-6">Bình thường</span>
+                        <span th:case="'Warning_L1'" class="badge rounded-pill bg-warning text-dark fs-6">Cảnh báo mức 1</span>
+                        <span th:case="'Warning_L2'" class="badge rounded-pill bg-danger fs-6">Cảnh báo mức 2</span>
+                        <span th:case="'Drop-out'" class="badge rounded-pill bg-dark fs-6">Buộc thôi học</span>
+                        <span th:case="*" class="badge rounded-pill bg-secondary fs-6" th:text="${student.status}"></span>
+                    </div>
+                    <div class="info-row"><span>Ngày sinh</span><span th:text="${student.dob}"></span></div>
+                    <div class="info-row"><span>Giới tính</span><span th:text="${student.gender}"></span></div>
+                    <div class="info-row"><span>Ngành học</span><span th:text="${student.major}"></span></div>
+                    <div class="info-row"><span>Khóa</span><span th:text="${student.cohort}"></span></div>
+                </div>
+            </div>
+
+            <div class="card mt-4" th:if="${admissionProfile != null}">
+                <div class="card-header bg-secondary text-white"><i class="fa-solid fa-id-card-clip me-2"></i>Hồ Sơ Đầu Vào</div>
+                <div class="card-body">
+                    <div class="info-row"><span>Phương thức xét tuyển</span><span th:text="${admissionProfile.admissionMethod}"></span></div>
+                    <div class="info-row"><span>Điểm gốc</span><span th:text="${admissionProfile.rawScore}"></span></div>
+                    <div class="info-row"><span>Điểm quy đổi (thang 30)</span><strong th:text="${admissionProfile.standardizedScore}"></strong></div>
+                    <div class="info-row"><span>Loại trường THPT</span><span th:text="${admissionProfile.highSchoolType}"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white"><i class="fa-solid fa-chart-line me-2"></i>Tiến Trình Học Tập Theo Học Kỳ</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Học kỳ</th>
+                            <th class="text-center">ĐTB học kỳ</th>
+                            <th class="text-center">ĐTB tích lũy</th>
+                            <th class="text-center">TC đăng ký</th>
+                            <th class="text-center">TC đạt</th>
+                            <th class="text-center">Nợ tích lũy</th>
+                            <th>Mức cảnh báo</th>
+                        </tr>
+                        </thead>
+                        <tbody id="progressBody">
+                        <tr th:each="p : ${progressList}"
+                            th:attr="data-term-gpa=${p.termGpa}, data-debt=${p.debtCreditsCumulative}"
+                            th:classappend="${p.academicStanding == 'Warning_L1'} ? 'table-warning' : (${p.academicStanding == 'Warning_L2'} ? 'table-danger' : (${p.academicStanding == 'Drop-out'} ? 'table-secondary' : ''))">
+                            <td th:text="${p.semester}"></td>
+                            <td class="text-center" th:text="${p.termGpa}"></td>
+                            <td class="text-center fw-bold" th:text="${p.cumulativeGpa}"></td>
+                            <td class="text-center" th:text="${p.creditsRegistered}"></td>
+                            <td class="text-center" th:text="${p.creditsPassed}"></td>
+                            <td class="text-center" th:text="${p.debtCreditsCumulative}"></td>
+                            <td th:switch="${p.academicStanding}">
+                                <span th:case="'Normal'" class="badge bg-success">Bình thường</span>
+                                <span th:case="'Warning_L1'" class="badge bg-warning text-dark">Cảnh báo 1</span>
+                                <span th:case="'Warning_L2'" class="badge bg-danger">Cảnh báo 2</span>
+                                <span th:case="'Drop-out'" class="badge bg-dark">Thôi học</span>
+                                <span th:case="*" class="badge bg-secondary" th:text="${p.academicStanding}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(progressList)}">
+                            <td colspan="7" class="text-center text-muted">Chưa có dữ liệu tiến trình học tập.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Phiếu đánh giá rủi ro AI -->
+            <div class="card">
+                <div class="card-header bg-info text-white"><i class="fa-solid fa-robot me-2"></i>Phiếu Đánh Giá Rủi Ro &amp; Đề Xuất Tư Vấn (AI)</div>
+                <div class="card-body">
+                    <div class="row g-2 align-items-end mb-3">
+                        <div class="col-md-7">
+                            <label for="highRiskCredits" class="form-label mb-1">Số tín chỉ dự kiến thuộc môn có tỷ lệ trượt lịch sử &gt; 20%</label>
+                            <input type="number" min="0" value="0" id="highRiskCredits" class="form-control">
+                        </div>
+                        <div class="col-md-5">
+                            <button type="button" id="btnAi" class="btn btn-primary w-100">
+                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Đánh giá nguy cơ AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="aiError" class="alert alert-danger d-none"></div>
+
+                    <div id="aiResult" class="d-none">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-4 text-center">
+                                <div class="risk-number" id="aiPercent">0%</div>
+                                <div class="text-muted">Xác suất nguy cơ</div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="progress"><div id="aiBar" class="progress-bar" style="width:0%"></div></div>
+                            </div>
+                        </div>
+                        <h6 class="fw-bold">Yếu tố rủi ro chính</h6>
+                        <ul id="aiFactors" class="mb-3"></ul>
+                        <div class="alert alert-light border mb-0">
+                            <i class="fa-solid fa-lightbulb text-warning me-1"></i>
+                            <strong>Khuyến nghị:</strong> <span id="aiMessage"></span>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6 class="fw-bold text-muted">Lịch sử đánh giá đã lưu</h6>
+                    <ul class="list-group list-group-flush" th:if="${not #lists.isEmpty(riskEvaluations)}">
+                        <li class="list-group-item" th:each="risk : ${riskEvaluations}">
+                            <div class="d-flex justify-content-between">
+                                <strong th:text="'Đánh giá lúc: ' + ${risk.evaluationTime}"></strong>
+                                <span class="badge bg-warning text-dark" th:text="${risk.riskProbability} + '%'"></span>
+                            </div>
+                            <p class="mb-0 mt-1 text-muted" th:text="${risk.primaryRiskFactor}"></p>
+                        </li>
+                    </ul>
+                    <div th:if="${#lists.isEmpty(riskEvaluations)}" class="text-muted">Chưa có đánh giá nào được lưu.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('btnAi').addEventListener('click', function () {
+        var root = document.getElementById('detailRoot');
+        var rows = document.querySelectorAll('#progressBody tr[data-term-gpa]');
+        var errBox = document.getElementById('aiError');
+        var resBox = document.getElementById('aiResult');
+        errBox.classList.add('d-none');
+        resBox.classList.add('d-none');
+
+        if (rows.length === 0) {
+            errBox.textContent = 'Sinh viên chưa có dữ liệu học kỳ để đánh giá.';
+            errBox.classList.remove('d-none');
+            return;
+        }
+
+        var last = rows[rows.length - 1];
+        var lastGpa = parseFloat(last.getAttribute('data-term-gpa')) || 0;
+        var prevGpa = rows.length > 1 ? (parseFloat(rows[rows.length - 2].getAttribute('data-term-gpa')) || 0) : lastGpa;
+
+        var payload = {
+            studentId: root.getAttribute('data-student'),
+            admissionScore: parseFloat(root.getAttribute('data-admission')) || 0,
+            gpaTrend: Math.round((lastGpa - prevGpa) * 100) / 100,
+            accumulatedDebtCredits: parseInt(last.getAttribute('data-debt'), 10) || 0,
+            highRiskCredits: parseInt(document.getElementById('highRiskCredits').value, 10) || 0
+        };
+
+        fetch('/api/ai/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(function (r) {
+            if (!r.ok) { throw new Error('HTTP ' + r.status); }
+            return r.json();
+        })
+        .then(function (d) {
+            var pct = Number(d.riskProbability) || 0;
+            document.getElementById('aiPercent').textContent = pct.toFixed(2) + '%';
+            var bar = document.getElementById('aiBar');
+            bar.style.width = Math.min(pct, 100) + '%';
+            bar.className = 'progress-bar ' + (pct >= 70 ? 'bg-danger' : (pct >= 30 ? 'bg-warning' : 'bg-success'));
+            var ul = document.getElementById('aiFactors');
+            ul.innerHTML = '';
+            (d.topRiskFactors || []).forEach(function (f) {
+                var li = document.createElement('li');
+                li.textContent = f;
+                ul.appendChild(li);
+            });
+            document.getElementById('aiMessage').textContent = d.recommendationMessage || '';
+            resBox.classList.remove('d-none');
+        })
+        .catch(function (e) {
+            errBox.textContent = 'Không gọi được module AI: ' + e.message;
+            errBox.classList.remove('d-none');
+        });
+    });
+</script>
 </body>
 </html>
