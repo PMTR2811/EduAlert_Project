@@ -2,68 +2,161 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Danh Sách Sinh Viên - EduAlert</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Hệ thống EduAlert - Quản lý Sinh viên</h2>
-        <a th:href="@{/students/new}" class="btn btn-primary">+ Thêm sinh viên</a>
+<body>
+<nav class="navbar navbar-edu navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/students}">
+            <i class="fa-solid fa-graduation-cap me-2"></i>EduAlert
+        </a>
+        <span class="navbar-text text-white-50">Hệ thống cảnh báo sớm kết quả học tập</span>
+    </div>
+</nav>
+
+<div class="container pb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h3 class="page-title mb-0">Quản lý Sinh viên</h3>
+        <div>
+            <button type="button" id="btnDemo" class="btn btn-success me-2">
+                <i class="fa-solid fa-database me-1"></i> Nạp hồ sơ mẫu
+            </button>
+            <a th:href="@{/students/new}" class="btn btn-primary">
+                <i class="fa-solid fa-plus me-1"></i> Thêm sinh viên
+            </a>
+        </div>
     </div>
 
-    <!-- Thanh tìm kiếm & Lọc trạng thái -->
-    <form th:action="@{/students}" method="get" class="row g-3 mb-4">
-        <div class="col-md-5">
-            <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Tìm theo tên hoặc MSSV...">
-        </div>
-        <div class="col-md-4">
-            <select name="status" class="form-select">
-                <option value="">-- Tất cả trạng thái --</option>
-                <option value="Normal" th:selected="${currentStatus == 'Normal'}">Bình thường (Normal)</option>
-                <option value="Warning_L1" th:selected="${currentStatus == 'Warning_L1'}">Cảnh báo Mức 1 (Warning_L1)</option>
-                <option value="Warning_L2" th:selected="${currentStatus == 'Warning_L2'}">Cảnh báo Mức 2 (Warning_L2)</option>
-                <option value="Drop-out" th:selected="${currentStatus == 'Drop-out'}">Buộc thôi học (Drop-out)</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-secondary w-100">Lọc dữ liệu</button>
-        </div>
-    </form>
+    <div id="demoMsg" class="alert d-none"></div>
 
-    <!-- Bảng hiển thị danh sách -->
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>MSSV</th>
-                <th>Họ và Tên</th>
-                <th>Ngành</th>
-                <th>Khóa</th>
-                <th>Trạng thái (TT08)</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:if="${#lists.isEmpty(students)}">
-                <td colspan="6" class="text-center text-muted py-3">Chưa có dữ liệu sinh viên nào.</td>
-            </tr>
-            <tr th:each="std : ${students}">
-                <td th:text="${std.studentCode}" class="fw-bold"></td>
-                <td th:text="${std.fullName}"></td>
-                <td th:text="${std.major}"></td>
-                <td th:text="${std.cohort}"></td>
-                <td>
-                    <span th:if="${std.status == 'Normal'}" class="badge bg-success">Bình thường</span>
-                    <span th:if="${std.status == 'Warning_L1'}" class="badge bg-warning text-dark">Cảnh báo Mức 1</span>
-                    <span th:if="${std.status == 'Warning_L2'}" class="badge bg-danger">Cảnh báo Mức 2</span>
-                    <span th:if="${std.status == 'Drop-out'}" class="badge bg-dark">Buộc thôi học</span>
-                </td>
-                <td>
-                    <a th:href="@{/students/detail/{id}(id=${std.studentCode})}" class="btn btn-sm btn-info text-white">Chi tiết</a>
-                    <a th:href="@{/students/edit/{id}(id=${std.studentCode})}" class="btn btn-sm btn-outline-primary">Sửa</a>
-                    <a th:href="@{/students/delete/{id}(id=${std.studentCode})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa sinh viên này?')">Xóa</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Thẻ thống kê (theo danh sách đang hiển thị) -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg">
+            <div class="stat-card stat-total"><div class="num" th:text="${#lists.size(students)}">0</div>Tổng số</div>
+        </div>
+        <div class="col-6 col-lg">
+            <div class="stat-card stat-ok"><div class="num" th:text="${#lists.size(students.?[status == 'Normal'])}">0</div>Bình thường</div>
+        </div>
+        <div class="col-6 col-lg">
+            <div class="stat-card stat-w1"><div class="num" th:text="${#lists.size(students.?[status == 'Warning_L1'])}">0</div>Cảnh báo mức 1</div>
+        </div>
+        <div class="col-6 col-lg">
+            <div class="stat-card stat-w2"><div class="num" th:text="${#lists.size(students.?[status == 'Warning_L2'])}">0</div>Cảnh báo mức 2</div>
+        </div>
+        <div class="col-12 col-lg">
+            <div class="stat-card stat-out"><div class="num" th:text="${#lists.size(students.?[status == 'Drop-out'])}">0</div>Buộc thôi học</div>
+        </div>
+    </div>
+
+    <!-- Tìm kiếm & lọc -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/students}" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Tìm theo tên hoặc MSSV...">
+                </div>
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="Normal" th:selected="${currentStatus == 'Normal'}">Bình thường (Normal)</option>
+                        <option value="Warning_L1" th:selected="${currentStatus == 'Warning_L1'}">Cảnh báo Mức 1 (Warning_L1)</option>
+                        <option value="Warning_L2" th:selected="${currentStatus == 'Warning_L2'}">Cảnh báo Mức 2 (Warning_L2)</option>
+                        <option value="Drop-out" th:selected="${currentStatus == 'Drop-out'}">Buộc thôi học (Drop-out)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-secondary w-100"><i class="fa-solid fa-filter me-1"></i> Lọc dữ liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách -->
+    <div class="card">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle mb-0" id="studentTable">
+                <thead class="table-dark">
+                <tr>
+                    <th class="sortable" data-col="0">MSSV <i class="fa-solid fa-sort ms-1"></i></th>
+                    <th class="sortable" data-col="1">Họ và Tên <i class="fa-solid fa-sort ms-1"></i></th>
+                    <th class="sortable" data-col="2">Ngành <i class="fa-solid fa-sort ms-1"></i></th>
+                    <th class="sortable" data-col="3">Khóa <i class="fa-solid fa-sort ms-1"></i></th>
+                    <th class="sortable" data-col="4">Trạng thái (TT08) <i class="fa-solid fa-sort ms-1"></i></th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(students)}">
+                    <td colspan="6" class="text-center text-muted py-3">Chưa có dữ liệu sinh viên nào. Bấm "Nạp hồ sơ mẫu" để thử.</td>
+                </tr>
+                <tr th:each="std : ${students}">
+                    <td th:text="${std.studentCode}" class="fw-bold text-primary"></td>
+                    <td th:text="${std.fullName}"></td>
+                    <td th:text="${std.major}"></td>
+                    <td th:text="${std.cohort}"></td>
+                    <td th:attr="data-sort=${std.status == 'Normal' ? 0 : (std.status == 'Warning_L1' ? 1 : (std.status == 'Warning_L2' ? 2 : 3))}">
+                        <span th:if="${std.status == 'Normal'}" class="badge rounded-pill bg-success">Bình thường</span>
+                        <span th:if="${std.status == 'Warning_L1'}" class="badge rounded-pill bg-warning text-dark">Cảnh báo Mức 1</span>
+                        <span th:if="${std.status == 'Warning_L2'}" class="badge rounded-pill bg-danger">Cảnh báo Mức 2</span>
+                        <span th:if="${std.status == 'Drop-out'}" class="badge rounded-pill bg-dark">Buộc thôi học</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/students/detail/{id}(id=${std.studentCode})}" class="btn btn-sm btn-info text-white">Chi tiết</a>
+                        <a th:href="@{/students/edit/{id}(id=${std.studentCode})}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                        <a th:href="@{/students/delete/{id}(id=${std.studentCode})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa sinh viên này?')">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Nút "Nạp hồ sơ mẫu"
+    document.getElementById('btnDemo').addEventListener('click', function () {
+        var msg = document.getElementById('demoMsg');
+        var btn = this;
+        btn.disabled = true;
+        fetch('/api/demo/load-synthetic-data', { method: 'POST' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                msg.className = 'alert ' + (d.success ? 'alert-success' : 'alert-danger');
+                msg.textContent = d.success ? 'Đã nạp ' + d.students + ' sinh viên mẫu.' : d.message;
+                if (d.success) { setTimeout(function () { window.location.href = '/students'; }, 800); }
+            })
+            .catch(function (e) {
+                msg.className = 'alert alert-danger';
+                msg.textContent = 'Không nạp được dữ liệu mẫu: ' + e.message;
+            })
+            .then(function () { btn.disabled = false; });
+    });
+
+    // Sắp xếp cột bằng cách nhấp tiêu đề
+    (function () {
+        var table = document.getElementById('studentTable');
+        var dir = {};
+        table.querySelectorAll('th.sortable').forEach(function (th) {
+            th.addEventListener('click', function () {
+                var col = parseInt(th.getAttribute('data-col'), 10);
+                dir[col] = !dir[col];
+                var tbody = table.tBodies[0];
+                var rows = Array.prototype.slice.call(tbody.rows).filter(function (r) { return r.cells.length > 1; });
+                rows.sort(function (a, b) {
+                    var ca = a.cells[col], cb = b.cells[col];
+                    var x = ca.getAttribute('data-sort') !== null ? parseFloat(ca.getAttribute('data-sort')) : ca.textContent.trim();
+                    var y = cb.getAttribute('data-sort') !== null ? parseFloat(cb.getAttribute('data-sort')) : cb.textContent.trim();
+                    var c = (typeof x === 'number') ? x - y : x.localeCompare(y, 'vi');
+                    return dir[col] ? c : -c;
+                });
+                rows.forEach(function (r) { tbody.appendChild(r); });
+            });
+        });
+    })();
+</script>
 </body>
 </html>
